@@ -6,17 +6,23 @@ namespace Crypto
     {
         public static void Main(string[] args)
         {
-            // var t = Lab1.ModPow(100, 45, 237);
-            // var t1 = Lab1.ExtendedEuclid(28, 19);
-            // Console.WriteLine("{0} {1} {2} | {3}", t1[0], t1[1], t1[2], t);
-            do
-            {
-                var pg = Lab1.GetPG(1000, 10000);
-                Console.WriteLine($" P:{pg[0]}, G:{pg[1]}");
-            } while (Console.ReadKey() != new ConsoleKeyInfo());
-            
-           // var pg = Lab1.GetPG(1000, 10000);
-           // Console.WriteLine($" P:{pg[0]}, G:{pg[1]}");
+            var pg = Lab1.GetPG(100000, 1000000);
+            Console.WriteLine($" P:{pg[0]}, G:{pg[1]}");
+
+            var alicePrivateKey = Lab1.GetRandomBigInt(100000, 1000000);
+            var alicePublicKey = Lab1.ModPow(pg[1], alicePrivateKey, pg[0]);
+
+            var bobPrivateKey = Lab1.GetRandomBigInt(100000, 1000000);
+            var bobPublicKey = Lab1.ModPow(pg[1], bobPrivateKey, pg[0]);
+
+            var aliceKey = Lab1.ModPow(bobPublicKey, alicePrivateKey, pg[0]);
+            var bobKey = Lab1.ModPow(alicePublicKey, bobPrivateKey, pg[0]);
+
+            Console.WriteLine($"AliceKey: {aliceKey}  BobKey: {bobKey}");
+
+            var y = Lab1.ModPow(8, 3, 27);
+            var x = Lab1.BabyStepGiantStep(y, 8, 27);
+            Console.WriteLine($" X:{x}");
             Console.ReadKey();
         }
     }

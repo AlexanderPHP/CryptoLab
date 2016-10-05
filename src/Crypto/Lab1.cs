@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
 using System.Security.Cryptography;
 
 namespace Crypto
@@ -72,15 +74,11 @@ namespace Crypto
             {
                 var a = GetRandomBigInt(2, n - 1);
                 var x = ModPow(a, d, n);
-                if (x == 1 || x == n - 1)
-                    continue;
-                for (var j = 0; j < r - 1; j++)
+                for (var j = 0; j < r; j++)
                 {
+                    if (x == 1 || x == n - 1)
+                        continue;
                     x = ModPow(x, 2, n);
-                    if (x == 1)
-                        return false;
-                    if (x == n - 1)
-                        break;
                 }
                 if (x != n - 1)
                     return false;
@@ -92,7 +90,7 @@ namespace Crypto
         {
             var r = GetRandomBigInt(minValue, maxValue);
             var k = (BigInteger)BigInteger.Log(r, 2);
-            if ((r & 1) == 0) r++;
+            if ((r & 1).IsZero) r++;
             while (!MillerRabinTest(r, k))
             {
                 r += 2;
@@ -113,11 +111,32 @@ namespace Crypto
 
                 g = GetRandomBigInt(2, p - 1);
 
-            } while (ModPow(g, q, p) == 1);
+            } while (ModPow(g, q, p).IsOne);
 
             return new[] { p, g };
         }
 
-      //  public static BigInteger[] 
+        public static BigInteger BabyStepGiantStep(BigInteger y, BigInteger a, BigInteger p)
+        {
+            BigInteger m, i, j;
+            var bs = new Dictionary<BigInteger, BigInteger>();
+
+            m = (BigInteger)(Math.Sqrt((double)p) + 1);
+
+            y %= p;
+
+            for (j = 0; j < m; j++)
+                bs.Add(ModPow(a, j, p) * y % p, j);
+
+            for (i = 1; i <= m; i++)
+            {
+                BigInteger value;
+                if (!bs.TryGetValue(ModPow(a, i * m, p), out value)) continue;
+                j = value;
+                break;
+            }
+
+            return i * m - j;
+        }
     }
 }
